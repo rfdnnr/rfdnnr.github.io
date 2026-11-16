@@ -392,8 +392,8 @@ const FIRE_PX = 34, CARD_FIRE_PX = 40;
 let lastWheelAt = 0, lastNotchAt = 0, leanTimer = 0, wsIgnoreUntil = 0;
 // Momentum is judged on a smoothed magnitude, so the frame-to-frame jitter of a 120 Hz trackpad
 // can't pass for a new swipe: after a word moves, the rest of that swipe is ignored until its
-// momentum has clearly faded, and a new swipe counts only when the force rises again for several
-// events in a row, well above where the momentum had settled.
+// momentum has faded to half its peak, and a new swipe counts once the smoothed force climbs back
+// to twice where the momentum had settled. Tuned on simulated 60/120 Hz gestures with heavy jitter.
 const mkG = () => ({ dir: 0, acc: 0, consumed: false, m: 0, peak: 0, decayed: false, low: Infinity, rises: 0, lastFire: 0, firedAt: 0 });
 const GD = mkG(), GC = mkG();   // dial axis, card axis
 function gReset(G) { const lf = G.lastFire; Object.assign(G, mkG()); G.lastFire = lf; }
@@ -403,15 +403,15 @@ function gFeed(G, raw, now, firePx, lean) {
   if (s && a > 0.5) G.dir = s;
   if (G.consumed) {
     const prevM = G.m;
-    G.m = G.m ? G.m * 0.7 + a * 0.3 : a;
+    G.m = G.m ? G.m * 0.4 + a * 0.6 : a;
     if (!G.decayed) {
       G.peak = Math.max(G.peak, G.m);
-      if (G.m < G.peak * 0.55 && now - G.firedAt > 120) { G.decayed = true; G.low = G.m; }
+      if (G.m < G.peak * 0.5 && now - G.firedAt > 80) { G.decayed = true; G.low = G.m; }
       return 0;
     }
-    G.rises = G.m > prevM + 0.25 ? G.rises + 1 : 0;
+    G.rises = G.m > prevM + 0.5 ? G.rises + 1 : 0;
     if (G.m < G.low) G.low = G.m;
-    const fresh = now - G.firedAt > 260 && G.rises >= 3 && a > Math.max(8, G.low * 2.5);
+    const fresh = now - G.firedAt > 150 && G.rises >= 1 && G.m > Math.max(2, G.low * 2);
     if (!fresh) return 0;
     const d = G.dir; gReset(G); G.dir = d;
   }

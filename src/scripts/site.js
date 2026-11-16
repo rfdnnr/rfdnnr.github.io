@@ -390,24 +390,34 @@ paintSound();
 // a vertical one is still arriving opens the card instead of being read as more scrolling.
 const FIRE_PX = 34, CARD_FIRE_PX = 40;
 let lastWheelAt = 0, lastNotchAt = 0, leanTimer = 0, wsIgnoreUntil = 0;
-const mkG = () => ({ dir: 0, acc: 0, consumed: false, peak: 0, decayed: false, low: Infinity, prev: 0, lastFire: 0, firedAt: 0 });
+// Momentum is judged on a smoothed magnitude, so the frame-to-frame jitter of a 120 Hz trackpad
+// can't pass for a new swipe: after a word moves, the rest of that swipe is ignored until its
+// momentum has clearly faded, and a new swipe counts only when the force rises again for several
+// events in a row, well above where the momentum had settled.
+const mkG = () => ({ dir: 0, acc: 0, consumed: false, m: 0, peak: 0, decayed: false, low: Infinity, rises: 0, lastFire: 0, firedAt: 0 });
 const GD = mkG(), GC = mkG();   // dial axis, card axis
 function gReset(G) { const lf = G.lastFire; Object.assign(G, mkG()); G.lastFire = lf; }
 function gFeed(G, raw, now, firePx, lean) {
   const a = Math.abs(raw), s = Math.sign(raw);
-  if (s && G.dir && s !== G.dir && a > 2) gReset(G);           // reversing is a new intention
+  if (s && G.dir && s !== G.dir && a > 3) gReset(G);           // reversing is a new intention
   if (s && a > 0.5) G.dir = s;
   if (G.consumed) {
-    if (!G.decayed) { if (a >= G.peak) G.peak = a; else if (a < G.peak * 0.7) { G.decayed = true; G.low = a; } }
-    else if ((a > Math.max(4, G.low * 1.8) && a > G.prev) || (now - G.firedAt > 450 && a > G.prev + 1 && a > 4)) { const d = G.dir; gReset(G); G.dir = d; }
-    else G.low = Math.min(G.low, a);
-    G.prev = a;
-    if (G.consumed) return 0;
+    const prevM = G.m;
+    G.m = G.m ? G.m * 0.7 + a * 0.3 : a;
+    if (!G.decayed) {
+      G.peak = Math.max(G.peak, G.m);
+      if (G.m < G.peak * 0.55 && now - G.firedAt > 120) { G.decayed = true; G.low = G.m; }
+      return 0;
+    }
+    G.rises = G.m > prevM + 0.25 ? G.rises + 1 : 0;
+    if (G.m < G.low) G.low = G.m;
+    const fresh = now - G.firedAt > 260 && G.rises >= 3 && a > Math.max(8, G.low * 2.5);
+    if (!fresh) return 0;
+    const d = G.dir; gReset(G); G.dir = d;
   }
-  G.prev = a;
   G.acc += raw;
   if (Math.abs(G.acc) >= firePx && now - G.lastFire > 150) {
-    Object.assign(G, { consumed: true, peak: a, decayed: false, low: Infinity, acc: 0, lastFire: now, firedAt: now });
+    Object.assign(G, { consumed: true, m: a, peak: a, decayed: false, low: Infinity, rises: 0, acc: 0, lastFire: now, firedAt: now });
     lean(0);
     return s || 1;
   }
@@ -440,7 +450,7 @@ stage.addEventListener('wheel', (e) => {
   const cardPart = cA > 1.2 * dA ? cRaw : 0;
   if (dialPart && !isOpen && !wrapping) {
     if (e.deltaMode === 1 || (dA >= 40 && gap > 70)) {                     // a mouse wheel click
-      gReset(GD); GD.consumed = true; GD.peak = dA; GD.firedAt = now;
+      gReset(GD); GD.consumed = true; GD.m = GD.peak = dA; GD.firedAt = now;
       if (now - lastNotchAt > 60) { lastNotchAt = now; GD.lastFire = now; step(Math.sign(dialPart)); }
     } else {
       const fired = gFeed(GD, dialPart, now, FIRE_PX, leanDial);

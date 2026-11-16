@@ -1,0 +1,83 @@
+---
+import { getCollection, render } from 'astro:content';
+import '@fontsource-variable/inter';
+import '../styles/site.css';
+import { GOATCOUNTER, SITE_NAME } from '../site';
+
+interface Props { start?: string }
+const { start = '' } = Astro.props;
+
+const entries = (await getCollection('cases')).sort((a, b) => a.data.order - b.data.order);
+const cases = await Promise.all(entries.map(async (e) => ({ ...e.data, Content: (await render(e)).Content })));
+const here = cases.find((c) => c.slug === start);
+const home = cases[0];
+const title = here && here.order > 0 ? `${here.label} · ${SITE_NAME}` : SITE_NAME;
+const description = here ? `${here.stmt} ${here.sub}` : `${home.stmt} ${home.sub}`;
+const canonical = new URL(here ? `/${here.slug}/` : '/', Astro.site).href;
+const ogImage = new URL(`/og/${here ? here.slug : 'home'}.jpg`, Astro.site).href;
+const data = { items: cases.map(({ slug, label }) => ({ slug, label })), start };
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  <link rel="canonical" href={canonical}>
+  <meta name="theme-color" content="#0a0b0e">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content={SITE_NAME}>
+  <meta property="og:title" content={title}>
+  <meta property="og:description" content={description}>
+  <meta property="og:url" content={canonical}>
+  <meta property="og:image" content={ogImage}>
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preload" as="image" href="/media/16684655_d.jpg" media="(orientation: landscape)">
+  {GOATCOUNTER && <script is:inline data-goatcounter={`https://${GOATCOUNTER}.goatcounter.com/count`} async src="https://gc.zgo.at/count.js"></script>}
+</head>
+<body>
+  <div id="stage">
+    <div id="bg" aria-hidden="true">
+      <video id="vA" muted playsinline preload="auto"></video>
+      <video id="vB" muted playsinline preload="auto"></video>
+      <canvas id="still" width="96" height="54"></canvas>
+      <div id="shade"></div>
+      <div id="dim"></div>
+    </div>
+
+    <h1 class="sr-only">{SITE_NAME}: {home.stmt}</h1>
+    <nav id="wheel" aria-label="Sections">
+      <button id="name" class="item" type="button" data-i="0">{home.label}</button>
+    </nav>
+    <p id="tagline">{home.stmt}</p>
+    <div id="cards">
+      {cases.map(({ slug, label, stmt, sub, Content }, i) => (
+        <article class="card" data-i={i} data-slug={slug} aria-label={label}>
+          <div class="card-in" tabindex="-1">
+            <div class="grab"></div>
+            <p class="eyebrow">{label}</p>
+            <h2 class="stmt">{stmt}</h2>
+            <p class="sub">{sub}</p>
+            <div class="body"><Content /></div>
+          </div>
+          <button class="close" type="button" aria-label={`Close ${label}`}><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 2.5l9 9M11.5 2.5l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        </article>
+      ))}
+    </div>
+
+    <div id="contact">
+      <a class="plink" href="mailto:rafaeldonner14@gmail.com">Email</a>
+      <a class="plink" href="https://www.linkedin.com/in/rafael-donner" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="plink" href="/Rafael_Donner_CV.pdf" target="_blank" rel="noopener">CV</a>
+      <button id="sound" type="button" aria-label="Turn sound off" aria-pressed="true"></button>
+    </div>
+  </div>
+  <noscript><style>#stage{position:static;overflow:auto}#bg,#wheel,#tagline,#contact{display:none}#cards{position:static;padding:24px}.card{position:static;visibility:visible;width:auto;height:auto;margin:0 0 24px;cursor:auto}.card-in{position:static;overflow:visible}.body,.eyebrow{opacity:1}.close{display:none}html,body{overflow:auto;height:auto}</style></noscript>
+  <script type="application/json" id="site-data" set:html={JSON.stringify(data)}></script>
+  <script>import '../scripts/site.js';</script>
+</body>
+</html>

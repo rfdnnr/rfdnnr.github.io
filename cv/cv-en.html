@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Rafael Donner, CV</title>
+<style>
+@page{size:Letter;margin:0.38in 0.5in}
+*{box-sizing:border-box}
+body{margin:0;font:9.3pt/1.28 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#111}
+h1{margin:0;font-size:19pt;letter-spacing:.04em;font-weight:700}
+.role{margin:2px 0 3px;font-size:10.5pt;font-weight:600}
+.contact{font-size:9pt;color:#333}
+.contact a{color:inherit;text-decoration:none}
+h2{margin:8px 0 3px;padding-bottom:2px;border-bottom:1px solid #999;font-size:9.6pt;letter-spacing:.08em;text-transform:uppercase}
+.job{margin-top:5px}
+.job b{font-weight:700}
+.meta{color:#333}
+ul{margin:2px 0 0;padding-left:14px}
+li{margin:0 0 2px}
+p{margin:0}
+.skills li{margin-bottom:1px}
+</style></head><body>
+<h1>RAFAEL DONNER</h1>
+<div class="role">Product &amp; AI Builder | Computer Engineering</div>
+<div class="contact">Rio de Janeiro, Brazil · rafaeldonner14@gmail.com · linkedin.com/in/rafael-donner · github.com/rfdnnr</div>
+
+<h2>Summary</h2>
+<p>Computer Engineering student at IBMEC, graduating in December 2026. I build products end to end, and the AI around them. I co-founded Scentia, a perfume recommendation app live on iOS and Android, and built an AI system that drafts its social media content for under $1 a week. At Bahia Asset, an asset manager, I automate the operations routines that can't fail. Co-author of two peer-reviewed papers (SBrT 2025).</p>
+
+<h2>Experience</h2>
+<div class="job"><b>Operations &amp; Tech Intern</b> <span class="meta">| Bahia Asset Management | Jan 2026 – present</span>
+<ul>
+<li>Moved the approval of buy and sell orders into the internal system (SQL, Vue), with batch approval. Before, the team left the system to approve orders in an Excel sheet. The same flow now serves government bonds, futures and equities.</li>
+<li>Automated the matching of each repo trade (a short-term investment backed by government bonds) to its Selic ID, the unique code assigned by Brazil's bond settlement system. The link used to be copied from a spreadsheet; now it's made as soon as the Selic file arrives.</li>
+<li>Integrated settlement tracking for government bond trades with two large banks, through API and SFTP files, working with their IT teams. Built a dashboard with intraday settlement status: settled, pending, sent to the broker.</li>
+<li>Run the daily government bond routine, plus fixed income, margin and asset registration.</li>
+</ul></div>
+<div class="job"><b>Risk Intern</b> <span class="meta">| Bahia Asset Management | Sep 2025 – Dec 2025</span>
+<ul><li>Cut the run time of the R script behind the historical stress test (how the portfolio would react to past crises) by 20%, so the risk report the trading desk relies on comes out sooner.</li></ul></div>
+<div class="job"><b>Co-founder, Product &amp; AI</b> <span class="meta">| Scentia | Jul 2025 – present</span>
+<ul>
+<li>Launched <i>Scentia: Perfume Certo</i> on iOS and Android (Sep 2026), an app that recommends perfumes from each person's taste, budget and occasion. Validated the problem first with 56 in-person interviews in two rounds.</li>
+<li>Designed the logic that prepares each recommendation for the LLM (GPT). An SQL ranking narrows the catalog to 40 candidates within budget and restrictions, and every answer is checked against the catalog, so the AI never suggests a perfume that doesn't exist. 500+ recommendations in the first two months.</li>
+<li>Found and fixed a silent bug that made recommendations random: an English catalog matched against a Portuguese quiz. The build now fails if any of the 71 scent categories is left unmapped.</li>
+<li>Connected the landing page to Make for welcome emails (100+ on the waitlist), and built product dashboards in Metabase for the four co-founders.</li>
+</ul></div>
+
+<h2>AI Project in Production</h2>
+<div class="job"><b>AI content pipeline</b> <span class="meta">| Scentia internal tool | 2026</span>
+<ul>
+<li>Built a system that collects weekly trends and uses LLMs (Claude) to propose Scentia's posts, which a person reviews before publishing. In its first 8 weeks: 29 approved posts, 16 published.</li>
+<li>Rebuilt the first version, an n8n automation that only searched perfume topics, as a web app (Next.js, TypeScript, PostgreSQL, Claude API) that also picks up general culture trends.</li>
+<li>Spent US$ 6.80 on AI APIs over those 8 weeks. Measured before optimizing: with prompt caching and leaner prompts, the writing cost per post fell from $0.08 to $0.02. 265 automated tests.</li>
+</ul></div>
+
+<h2>Education</h2>
+<div class="job"><b>B.S. Computer Engineering</b> <span class="meta">| IBMEC RJ | Feb 2023 – Dec 2026 | GPA 9.1/10</span>
+<p>Thesis: an AI content pipeline in production.</p></div>
+
+<h2>Publications <span style="text-transform:none;letter-spacing:0;font-weight:400">(SBrT 2025, peer-reviewed)</span></h2>
+<ul>
+<li>A Computer Vision-Based System for Monitoring Liveness in Remote Work. DOI 10.14209/sbrt.2025.1571143918</li>
+<li>A Low-Cost IoT-Driven Reuse of Condensate Water for Automated Plant Irrigation. DOI 10.14209/sbrt.2025.1571157370</li>
+</ul>
+
+<h2>Skills</h2>
+<ul class="skills">
+<li><b>Generative AI:</b> prompt engineering, LLM pipelines (Claude, GPT, Gemini), prompt caching, cost measurement.</li>
+<li><b>Automation and AI-assisted development:</b> Claude Code, n8n, Make, Apify. I ship production apps with Claude Code in stacks I direct but don't hand-write (TypeScript, Next.js).</li>
+<li><b>Code and data:</b> Python, SQL, R, Java, Dart (Flutter), Vue, PostgreSQL, Metabase, Git.</li>
+<li><b>Languages:</b> Portuguese (native), English (advanced), Spanish (intermediate). Scrum Foundation (CertiProf, 2024).</li>
+</ul>
+</body></html>

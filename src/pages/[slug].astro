@@ -1,0 +1,10 @@
+---
+import { getCollection } from 'astro:content';
+import Site from '../components/Site.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('cases');
+  return entries.map((e) => ({ params: { slug: e.data.slug } }));
+}
+---
+<Site start={Astro.params.slug} />
